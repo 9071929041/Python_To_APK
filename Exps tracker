@@ -1,0 +1,63 @@
+import sqlite3
+from datetime import datetime
+
+# ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕ ಸ್ಥಾಪಿಸಿ
+conn = sqlite3.connect('expense_tracker.db')
+c = conn.cursor()
+
+# ಟೇಬಲ್ ರಚಿಸಿ (ಇದು ಒಮ್ಮೆ ಮಾತ್ರ ರಚಿಸಬೇಕು)
+c.execute('''CREATE TABLE IF NOT EXISTS expenses
+             (id INTEGER PRIMARY KEY AUTOINCREMENT,
+              date TEXT,
+              category TEXT,
+              amount REAL,
+              description TEXT)''')
+
+# ವೆಚ್ಚವನ್ನು ಸೇರಿಸುವ ಕಾರ್ಯ
+def add_expense():
+    date = input("Date (YYYY-MM-DD): ")
+    category = input("Class/Exps type: ")
+    amount = float(input("Amount: "))
+    description = input("Description: ")
+    
+    c.execute("INSERT INTO expenses (date, category, amount, description) VALUES (?, ?, ?, ?)",
+              (date, category, amount, description))
+    conn.commit()
+    print("Exps saved!")
+
+# ಎಲ್ಲಾ ವೆಚ್ಚಗಳನ್ನು ನೋಡುವ ಕಾರ್ಯ
+def view_expenses():
+    c.execute("SELECT * FROM expenses")
+    expenses = c.fetchall()
+    
+    if not expenses:
+        print("No expenses.")
+    else:
+        print("\n--- All esxpenses ---")
+        for expense in expenses:
+            print(f"ID: {expense[0]}, Date: {expense[1]}, Class/expenses type: {expense[2]}, Amount: {expense[3]}, Description: {expense[4]}")
+
+# ಮುಖ್ಯ ಮೆನು
+def main():
+    while True:
+        print("\n--- Expenses tracker---")
+        print("1. Add exps")
+        print("2. See your exps")
+        print("3. Exit")
+        
+        choice = input("Your choice: ")
+        
+        if choice == '1':
+            add_expense()
+        elif choice == '2':
+            view_expenses()
+        elif choice == '3':
+            break
+        else:
+            print("wrong entered please try agin.")
+
+if __name__ == "__main__":
+    main()
+
+# ಡೇಟಾಬೇಸ್ ಸಂಪರ್ಕ ಮುಚ್ಚಿ
+conn.close()
